@@ -14,7 +14,8 @@
 AWS 서버리스 아키텍처 기반 OAuth 프로토콜과 FaaS 웹 서비스를 구현하였습니다. 구현된 OAuth 프로토콜은 웹 서비스의 로그인 부분에 사용되었습니다.
 
 ## Todos
-* 성규한테 플로우 짜고 검사
+* 성규한테 플로우 짜고 리뷰받음
+  * 리뷰 후, 각 단계에 대한 설계서(흐름도) 작성
 
 ## OAuth
 표준 문서의 이름은 [RFC 6749](https://tools.ietf.org/html/rfc6749)이며, 프로토콜 흐름은 다음과 같음.
@@ -77,42 +78,63 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 우리는 이를 어떻게 구현할 것인가?
 
 ### 흐름
-![flow](https://i.imgur.com/TtDRs2Z.png)
+![flow](https://i.imgur.com/p098abc.png)
 
 1. 인가되지 않은 사용자가 `Resource Server`에 접근하여, _보호된 자원_ 을 요청
+
 2. 이 경우 로그인 페이지로 Redirection을 진행한다.
+
 3. `Client`는 로그인 페이지에서 아이디와 패스워드를 입력/전송
     * SSL 사용
+
 4. `Resource Owner`는 `DB`에서 유저 정보 가져옴
+
 5. 검증 여부에 따라 인증서(Grant)가 발급되거나, 인증 실패가 반환됨
     * 인증 실패 시, 재 로그인이 필요
+
 6. `Client`는 인증서를 `Authorization Server`로 전송
+
 7. `Authorization Server`는 `DB`에서 인증서 정보를 가져옴
+
 8. 검증 여부에 따라 Token이 발급되거나, 인증 실패가 반환됨
     * `Access Token`을 통해 보호된 자원을 요청할 수 있음
     * `Refresh Token`은 `Access Token`을 새로이 발급받기 위해 사용
+
 9. `Client`는 `Access Token`과 함께 보호된 자원을 요청
+
 10. `Resource Server`는 `DB`에서 토큰 정보를 가져옴
+
 11. 검증 여부에 따라 리소스가 반환되거나, 인증 실패가 반환됨
+
+12. `Client`는 새로운 `Access Token`을 발급받기 위해 `Authorization Server`로 `Refresh Token`을 전송
+
+13. `Authorization Server`는 `DB`에서 토큰 정보를 가져옴
+
+14. 검증 여부에 따라 `Access Token`과 `Refresh Token`이 발급되거나, 인증 실패가 반환됨
 
 ### Algorithm
 세부 동작은 다음과 같음
 
 #### 1. Access Token 없이 리소스 접근 / 서비스 이용 시도
 1. `Resource Server`는 `Client`에서 보낸 데이터를 확인함
+
 2. `Access Token`이 있으면 리소스 반환 (_http 200_)
+
 3. 없으면 인증 실패 반환 (_http 401_)
 
 #### 2. 로그인 페이지로 Redirection
 1. 현재는 `Access Token`을 아직 발급받지 않은 상태
+
 2. 따라서 http 401을 반환하여 인가되지 않은 사용자임을 반환
 
 #### 3. 아이디와 패스워드 전송
 1. `Access Token`을 얻기 위해서는 인증서를 먼저 발급받아야 함
+
 2. 이를 위해 `Resource Owner`에게 아이디와 패스워드를 전송
 
 #### 4. 유저 정보 가져옴
 1. `Resource Owner`는 전송된 `Client`의 정보를 검증하기 위해
+
 2. `DB/Users`에서 유저의 정보를 가져온 뒤, 검증을 진행
     * Password가 Hashed 되었음을 유의
 
@@ -134,6 +156,7 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 1. 검증 여부에 따라 인증서가 발급되거나 (_http 200_)
     * '발급'은 인증서의 `id`와 인증서 검증값(`validation`)을 전송함을 의미함
     * `DB/Grants`에 발급된 인증서 append
+
 2. 유저 정보 인증 실패가 반환 (_http 401_)
 
 인증서 내용은 다음과 같이 저장되어있음
@@ -154,11 +177,14 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 
 #### 6. 인증서 전달
 1. 성공적으로 인증서가 발급되었을 경우
+
 2. `Client`는 인증서를 `Authorization Server`로 전송하여
+
 3. `Access Token`을 발급받도록 해야 함
 
 #### 7. 인증서 정보 가져옴
 1. `Authorization Server`는 전송된 인증서를 검증하기 위해
+
 2. `DB/Grants`에서 `id`를 통해 인증서를 찾아냄
     * 없으면 당연히 검증 실패 (_http 403_)
 
@@ -166,28 +192,53 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 1. 다음의 검증을 진행
     * `validation` 값을 비교
     * `created` 값을 이용해 특정 시간 내에 인증서가 보내졌음을 확인
+
 2. 위 두 가지 rule이 성립하는 경우에만 __검증 성공__
     * 그 외에는 실패 (_http 403_)
     * 검증 성공 시 _인증서 `DB/Grants`에서 제거_ (의미가 없음)
+
 3. 토큰 발급을 위해 인증서와 연결된 `userId`값을 이용
+
 4. `Access Token`, `Refresh Token`을 생성 및 전송 (_http 200_)
     * 그리고 `DB/Tokens`에 생성한 Token을 append
 
 #### 9. Access Token과 함께 리소스 요청 / 서비스 이용 시도
-1. `Resource Server`는 `Client`에서 보낸 데이터를 확인함
-2. 현재는 `Access Token`이 있으니 일단 진행
+1. 현재는 `Access Token`이 있음
+
+2. `Client`는 리소스를 요청하고, 이를 위해 `Access Token`을 같이 전송
 
 #### 10. 토큰 정보 가져옴
-1. `Access Token` 검증을 위해
-2. `DB/Tokens`에서 `accessToken`값을 이용해 Token을 찾아냄
+1. `Resource Server`는 `Access Token` 검증을 위해
+
+2. `DB/Tokens`에서 `accessToken` 값을 이용해 Token을 찾아냄
 
 #### 11. 리소스 반환 / 인증 실패
 1. 다음이 만족하면 _검증된 `Access Token`_ 이라고 할 수 있음
     * `DB/Tokens`에 `Access Token`이 있으며
     * 유효기간(`expired`)을 넘지 않음
+
 2. 검증된 `Access Token`을 전송한 경우 리소스 반환 (_http 200_)
     * 그리고 유효기간 재생성
+
 3. 그렇지 않은 경우 인증 실패 반환 (_http 401_)
+
+#### 12. Refresh Token 전달
+1. `Access Token`이 만료된 경우 재발급을 받아야 함
+
+2. 이를 위해 `Client`는 `Authorization Server`에 `Refresh Token`을 전송
+
+#### 13. 토큰 정보 가져옴
+1. `Authorization Server`는 `Refresh Token` 검증을 위해
+
+2. `DB/Tokens`에서 `refreshToken` 값을 이용해 Token을 찾아냄
+
+#### 14. Token 발급 / 인증 실패
+1. 다음을 만족하면 검증된 `Refresh Token` 이라고 할 수 있음
+    * `DB/Tokens`에 `Refresh Token`이 있음
+
+2. 검증 성공이면 새로운 토큰(`Access Token`, `Refresh Token`) 반환 (_http 200_)
+
+3. 검증 실패면 인증 실패 반환 (_http 401_)
 
 ### Tables
 ```json
@@ -231,6 +282,8 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 
 #### Case 7: Access Token 탈취
 
+#### Case 8: 
+
 ## Questions
 * 인증서, `Access Token` 이런거 클라이언트로 전송 시 암호화 해야하지 않나? 평문으로 보내도 되는건가?
 
@@ -238,4 +291,17 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 
 * 인증서 검증 후, 제거해도 되는가? 더 이상 인증서를 통해 `Access Token`을 발급받지 않는데 의미가 없지 않은가?
 
-* `Access Token`을 검증할 때, 그냥 값이랑 유효기간만 비교해도 되는 것인가?
+* `Access Token`, `Refresh Token` 그리고 인증서를 전송할 때 header를 통해 줘야 하는가, 아니면 body를 통해 줘야 하는가? 차이가 없는가?
+
+* `Access Token`을 검증할 때, 그냥 값이랑 유효기간만 비교해도 되는 것인가? 이래도 안전한 검증이라 할 수 있는가?
+  * 심지어 `Refresh Token`은 유효기간도 없음
+
+* `Access Token` 발급 시 `Client`에게 유효기간을 보내지 않는데, 괜찮은 것인가? (스펙에서는 보내도록 하고 있음)
+
+* `Access Token`을 통해 Resource를 받아온 경우, 유효기간을 늘려줘야만 하나?
+  * 현재는 이러한 패턴으로 설계했으나, 적절하지 않은 패턴으로 파악될 경우
+  * 유효기간을 늘리지 않고, 유효기간이 되었을 때 `Refresh Token`을 통해 새로운 `Access Token`을 발급받도록 함
+
+* `Authorization Server`는 인증서 또는 `Refresh Token`을 통해 새로운 `Access Token`을 발급하는데, 이 둘을 구분해주지 않아도 되는가?
+  * 8번과 14번 두 개를 말하는 것
+  * 현재는 구분을 위해 mode를 같이 보내는 방안을 생각중
