@@ -14,7 +14,7 @@ That protocol allows oonly authorized users to access web resources. Which means
 * [김성규](https://github.com/timosarang)
 * [고한설](https://github.com/rhgkstjf)
 * [서해준](https://github.com/Gumball12)
-* 송재헌
+* [송재헌](https://github.com/JaehunSong)
 * [양철주](https://github.com/ycj1212)
 
 # serverless-with-oauth (ko)
