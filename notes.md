@@ -201,7 +201,7 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 
 2. 위 두 가지 rule이 성립하는 경우에만 __검증 성공__
     * 그 외에는 실패 (_http 403_)
-    * 검증 성공 시 _인증서 `DB/Grants`에서 제거_ (의미가 없음)
+    * 검증 성공 시 _인증서 `DB/Grants`에서 제거_
 
 3. 토큰 발급을 위해 인증서와 연결된 `userId`값을 이용
 
@@ -282,45 +282,54 @@ OAuth를 구성하고 있는 주요 객체(_Roles_) 4 가지
 ### Cases
 보안 위협 시나리오 정의
 
-#### Case 1: Authorization DOS 공격
-![case 1 flow]()
+#### Case 1: Authorization Grant, Access Token 중간 탈취
+![case 1 flow](https://i.imgur.com/Rkf9204.png)
 
-#### Case 2: Authorization Grant, Access Token 탈취
-![case 2 flow](https://i.imgur.com/OmhyXlw.png)
+SSL을 사용하기에, 중간에서 진행되는 탈취는 불가능합니다.
 
-SSL을 통해 패킷을 암호화하여 전송하기에, 탈취 자체는 막을 수 있습니다.
+#### Case 2: Authorization Grant, Access Token 추측
+![case 2 flow](https://i.imgur.com/2WAr1ZV.png)
 
-#### Case 3: Authorization Grant, Access Token 추측
-![case 3 flow]()
+128bit uuid를 사용하기에 추측은 불가능에 _가깝습니다._ (이상적인 경우, 확률은 5.8774718e-37)
 
-#### Case 4: CSRF
-![case 4 flow]()
+#### Case 3: CSRF
+![case 3 flow](https://i.imgur.com/RJQWUbW.png)
+
+XSS 코드를 심을 만한 곳이 없기에 CSRF는 불가능합니다.
 
 ## Questions
-* 인증서, `Access Token` 이런거 클라이언트로 전송 시 암호화 해야하지 않나? 평문으로 보내도 되는건가?
-
-* 인증서를 `validation` 값으로 검증하는게 의미가 있나? 너무 약하거나 의미가 없지 않은가?
-
-* 인증서 검증 후, 제거해도 되는가? 더 이상 인증서를 통해 `Access Token`을 발급받지 않는데 의미가 없지 않은가?
-
-* `Access Token`, `Refresh Token` 그리고 인증서를 전송할 때 header를 통해 줘야 하는가, 아니면 body를 통해 줘야 하는가? 차이가 없는가?
-
-* `Access Token`을 검증할 때, 그냥 값이랑 유효기간만 비교해도 되는 것인가? 이래도 안전한 검증이라 할 수 있는가?
-  * 심지어 `Refresh Token`은 유효기간도 없음
-
-* `Access Token` 발급 시 `Client`에게 유효기간을 보내지 않는데, 괜찮은 것인가? (스펙에서는 보내도록 하고 있음)
-
-* `Access Token`을 통해 Resource를 받아온 경우, 유효기간을 늘려줘야만 하나?
+* [ ] `Access Token`을 통해 Resource를 받아온 경우, 유효기간을 늘려줘야만 하나?
   * 현재는 이러한 패턴으로 설계했으나, 적절하지 않은 패턴으로 파악될 경우
   * 유효기간을 늘리지 않고, 유효기간이 되었을 때 `Refresh Token`을 통해 새로운 `Access Token`을 발급받도록 함
 
-* `Authorization Server`는 인증서 또는 `Refresh Token`을 통해 새로운 `Access Token`을 발급하는데, 이 둘을 구분해주지 않아도 되는가?
+* [ ] `Authorization Server`는 인증서 또는 `Refresh Token`을 통해 새로운 `Access Token`을 발급하는데, 이 둘을 구분해주지 않아도 되는가?
   * 8번과 14번 두 개를 말하는 것
   * 현재는 구분을 위해 mode를 같이 보내는 방안을 생각중
 
-* 위에 정의된 시나리오 말고도 다른 시나리오는 없겠는가?
+* [ ] 위에 정의된 시나리오 말고도 다른 시나리오는 없겠는가?
 
-* _SSL 사용하면 Grant나 `Access Token`의 탈취가 불가능한가?_
-  * 불가능하다.
+* [x] 인증서, `Access Token` 이런거 클라이언트로 전송 시 암호화 해야하지 않나? 평문으로 보내도 되는건가?
+  * 의미가 없지 않은가?
+  * __Access Token이나 인증서 자체에는 아무런 의미도 없어서 평문으로 보내도 됨__
 
-* 만일 _추측_ 과 같은 방법을 사용하면 어떻게 방어하나?
+* [x] 인증서를 `validation` 값으로 검증하는게 의미가 있나? 너무 약하거나 의미가 없지 않은가?
+  * __의미가 없음__
+
+* [x] 인증서 검증 후, 제거해도 되는가? 더 이상 인증서를 통해 `Access Token`을 발급받지 않는데 의미가 없지 않은가?
+  * __사용 후 폐기__
+
+* [x] `Access Token`, `Refresh Token` 그리고 인증서를 전송할 때 header를 통해 줘야 하는가, 아니면 body를 통해 줘야 하는가? 차이가 없는가?
+  * __두 방법의 차이는 없으나 body에 넣도록 한다.__
+
+* [x] `Access Token`을 검증할 때, 그냥 값이랑 유효기간만 비교해도 되는 것인가? 이래도 안전한 검증이라 할 수 있는가?
+  * 심지어 `Refresh Token`은 유효기간도 없음 => solved
+  * __어차피 중간자 공격도 안먹히고 XSS도 불가능해서 ㄱㅊ__
+
+* [x] `Access Token` 발급 시 `Client`에게 유효기간을 보내지 않는데, 괜찮은 것인가? (스펙에서는 보내도록 하고 있음)
+  * __괜찮__
+
+* [x] SSL 사용하면 Grant나 `Access Token`의 탈취가 불가능한가?
+  * __불가능하다.__
+
+* [x] 만일 _추측_ 과 같은 방법을 사용하면 어떻게 방어하나?
+  * __uuid 사용하면 괜찮. 128bit니까 추측 확률이 `1 / 2^128`에 가까운 것인가? 싶기도 하고__
