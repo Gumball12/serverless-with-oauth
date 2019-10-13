@@ -6,7 +6,9 @@
 
 // import tetsing modules
 import { expect } from 'chai';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+
+import { mask } from 'vue-the-mask';
 
 // import target
 import Login from '@/views/Login.vue';
@@ -17,8 +19,13 @@ describe('Login.vue', () => {
    * binding test
    */
   it('data <=> DOM binding test', () => {
+    const localVue = createLocalVue();
+    localVue.directive('mask', mask);
+
     // get wrapper
-    const wrapper = shallowMount(Login);
+    const wrapper = shallowMount(Login, {
+      localVue,
+    });
 
     // get target instance
     const target = wrapper.find({ ref: 'id-input-field' });
