@@ -1,21 +1,5 @@
 <template>
   <v-app>
-    <v-app-bar app>
-      <v-toolbar-title class="headline text-uppercase">
-        <span>Vuetify</span>
-        <span class="font-weight-light">MATERIAL DESIGN</span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn
-        text
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
     <v-content>
       <router-view/>
     </v-content>
@@ -25,9 +9,25 @@
 <script>
 
 export default {
-  name: 'App',
-  data: () => ({
-    //
-  }),
+  name: 'app',
 };
 </script>
+
+<style lang="scss">
+/* global */
+
+html {
+  overflow-y: hidden !important;
+}
+
+// fonts
+@font-face { // 배민 주아체
+  font-family: bm-jua;
+  src: url('./assets/fonts/BMJUA_ttf.ttf');
+}
+
+@font-face {
+  font-family: bm-hanna;
+  src: url('./assets/fonts/BMHANNA_11yrs_ttf.ttf');
+}
+</style>
