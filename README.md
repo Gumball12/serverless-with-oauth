@@ -1,7 +1,7 @@
 # serverless-with-oauth
 [![JavaScript Style Guide: Good Parts](https://img.shields.io/badge/code%20style-goodparts-brightgreen.svg?style=flat)](https://github.com/dwyl/goodparts "JavaScript The Good Parts") [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues) [![Known Vulnerabilities](https://snyk.io//test/github/Gumball12/serverless-with-oauth/badge.svg?targetFile=package.json)](https://snyk.io//test/github/Gumball12/serverless-with-oauth?targetFile=package.json)
 
-<p align="center"><img alt="thumbnail" height="400" src="https://i.imgur.com/cFciRLc.png"></p>
+<p align="center"><img alt="thumbnail" style="max-height: 400px" src="https://i.imgur.com/cFciRLc.png"></p>
 
 ### 🔒OAuth2.0 protocol implemented via ⚡️AWS Serverless architecture
 We implemented the _[OAuth2.0 Standard Protocol (RFC 6749)](https://tools.ietf.org/html/rfc6749)_ via AWS Serverless architecture.
@@ -12,7 +12,7 @@ That protocol allows only authorized users to access web resources. Which means 
 
 > And, of course, you can contribute through the 🔧 [Issues](https://github.com/Gumball12/serverless-with-oauth/issues) page
 
-_Thanks for reading! And if it helps, you can start it!_ 😂⭐️
+_Thanks for reading! And if it helps, you can start it!_ ⭐️
 
 ### 🐧 Team Members
 * [김성규](https://github.com/timosarang)
@@ -23,7 +23,7 @@ _Thanks for reading! And if it helps, you can start it!_ 😂⭐️
 
 ## Service Flow
 ### OAuth2.0 Flow
-<p align="center"><img alt="oauth flow" height="400" src="https://i.imgur.com/Bp8n5XV.png"></p>
+<p align="center"><img alt="oauth flow" style="max-height: 400px" src="https://i.imgur.com/Bp8n5XV.png"></p>
 
 #### Processes
 * Process 1: Access to Protected Resources
@@ -37,7 +37,7 @@ _Thanks for reading! And if it helps, you can start it!_ 😂⭐️
 * CSRF
 
 ### AWS Flow
-<p align="center"><img alt="aws flow" height="400" src="https://i.imgur.com/B09PSmO.png"></p>
+<p align="center"><img alt="aws flow" style="max-height: 400px" src="https://i.imgur.com/B09PSmO.png"></p>
 
 * OAuth modules
   * `Resource Server`
@@ -58,8 +58,5 @@ Using Javascript
 * Dev-Dependencies; _eslint, sass_
 
 ### Reference
-* [D. Hardt, Ed., "The OAuth 2.0 Authorization Framework", RFC 6749, Oct 2012](https://tools.ietf.org/html/rfc6749)
-
-### Bibliography
-* [Rich Ludeen, "The Deputies are Still Confused", Blackhat, Jan 2013](https://media.blackhat.com/eu-13/briefings/Lundeen/bh-eu-13-deputies-still-confused-lundeen-wp.pdf)
-* [Jim Manico, Cross-Side Request Forgery Prevention in "OWASP Cheat Sheet Series", OWASP, Sep 2019](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.md)
+* [[1] HARDT, Dick. The OAuth 2.0 authorization framework. 2012.](https://tools.ietf.org/html/rfc6749)
+* [[2] JONES, M.; BRADLEY, J.; SAKIMURA, N. Rfc 7519: Json web token (jwt). Date of retrieval, 2015, 5: 2017.](https://tools.ietf.org/html/rfc7519)
