@@ -23,7 +23,7 @@ _Thanks for reading! And if it helps, you can start it!_ ⭐️
 
 ## Service Flow
 ### OAuth2.0 Flow
-<p align="center"><img alt="oauth flow" style="max-height: 400px" src="https://i.imgur.com/Bp8n5XV.png"></p>
+<p align="center"><img alt="oauth flow" height="400" src="https://i.imgur.com/Bp8n5XV.png"></p>
 
 #### Processes
 * Process 1: Access to Protected Resources
@@ -37,7 +37,7 @@ _Thanks for reading! And if it helps, you can start it!_ ⭐️
 * CSRF
 
 ### AWS Flow
-<p align="center"><img alt="aws flow" style="max-height: 400px" src="https://i.imgur.com/B09PSmO.png"></p>
+<p align="center"><img alt="aws flow" height="400" src="https://i.imgur.com/B09PSmO.png"></p>
 
 * OAuth modules
   * `Resource Server`
