@@ -52,6 +52,7 @@
 <script>
 import * as VueTheMask from 'vue-the-mask';
 import { repeat, reduce } from 'lodash';
+import { post } from 'axios';
 
 /**
  * check a staring using regular expression and length
@@ -124,8 +125,17 @@ export default {
     /**
      * login action
      */
-    doLogin() {
-      console.log('login action');
+    async doLogin() {
+      // send user data
+      const { data } = await post(`${this.$env.host}/filter`, {
+        target: 'resource-owner',
+        payload: {
+          id: 'darwin',
+          password: 'pass',
+        },
+      });
+
+      console.log(data);
     },
   },
   created() {
