@@ -56,9 +56,9 @@
 
 <script>
 import * as VueTheMask from 'vue-the-mask';
-import { repeat, reduce } from 'lodash';
+import _ from 'lodash';
 import { post } from 'axios';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 /**
  * check a staring using regular expression and length
@@ -68,7 +68,7 @@ import { mapGetters } from 'vuex';
  * @return {Boolean} validation result
  */
 // eslint-disable-next-line max-len
-const checkRegexWithCount = (str, regex, len) => reduce(str, (r, c) => (regex.test(c) ? r + 1 : r), 0) >= len;
+const checkRegexWithCount = (str, regex, len) => _.reduce(str, (r, c) => (regex.test(c) ? r + 1 : r), 0) >= len;
 
 export default {
   name: 'login',
@@ -80,16 +80,16 @@ export default {
 
     // input field env
     passwordShow: false,
-    isLoginFail: false,
-    isLoading: false,
+    isLoginFail: false, // for messaging
+    isLoading: false, // for loading progress circle
 
     // page mode
     registerMode: false,
 
     // input field masks
     mask: {
-      id: repeat('X', 32), // X: number + alphabet
-      password: repeat('P', 32), // P: custom rule
+      id: _.repeat('X', 32), // X: number + alphabet
+      password: _.repeat('P', 32), // P: custom rule
     },
 
     // input field rules
@@ -149,8 +149,13 @@ export default {
      */
     async doLogin() {
       // check token is empty
-      if (!this.isTokenEmpty) {
-        // token is not empty => wrong state
+      if (!this.isTokenEmpty) { // token is not empty => wrong state
+        // clear all tokens
+        this.clearToken();
+
+        // validation failed
+        this.isLoginFail = true;
+
         return false;
       }
 
@@ -158,30 +163,48 @@ export default {
       this.isLoading = true;
 
       // 1. Request Auth Grant
-      const { data } = await post(`${this.$env.host}/filter`, {
+      const { data: respResOwner } = await post(`${this.$env.host}/filter`, {
         target: 'resource-owner',
         payload: {
-          id: this.idField,
+          userId: this.idField,
           password: this.passwordField,
+        },
+      });
+
+      // check status code
+      if (respResOwner.statusCode !== 200) {
+        // validation failed
+        this.isLoginFail = true;
+
+        // stop loading
+        this.isLoading = false;
+        return false;
+      }
+
+      // get Auth Grant ID
+      const { body: grant } = respResOwner;
+
+      // 2. Request Tokens
+      const { data: respAuthServer } = await post(`${this.$env.host}/filter`, {
+        target: 'authorization-server',
+        payload: {
+          grant,
+          userId: this.idField,
         },
       });
 
       // end loading
       this.isLoading = false;
 
-      // check status code
-      if (data.statusCode) {
-        // validation failed
-        this.isLoginFail = true;
-        return false;
-      }
-
-      // get Auth Grant ID
-      const { body: grant } = data;
-      console.log(grant);
+      console.log(respAuthServer);
 
       return true;
     },
+    // vuex
+    ...mapActions([
+      'setToken',
+      'clearToken',
+    ]),
   },
   created() {
     // append custom token rule 'P'

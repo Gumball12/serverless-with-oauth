@@ -22,16 +22,36 @@ export default new Vuex.Store({
   mutations: {
     /**
      * update access token
+     * @param {String} accessToken new access token
      */
-    updateAccessToken() {
+    updateAccessToken(state, accessToken) {
+      state.accessToken = accessToken;
+    },
+    /**
+     * update refresh token
+     * @param {String} refreshToken  new refresh token
+     */
+    updateRefreshToken(state, refreshToken) {
+      state.refreshToken = refreshToken;
     },
   },
   actions: {
-    setAccessToken() {
-      //
+    /**
+     * set new access/refresh token
+     * @param {Object} payload access/refresh token
+     * @param {Object} payload.accessToken new access token
+     * @param {Object} payload.refreshToken new refresh token
+     */
+    setToken({ commit }, { accessToken, refreshToken }) {
+      commit('updateAccessToken', accessToken);
+      commit('updateRefreshToken', refreshToken);
     },
-    clearAccessToken() {
-      //
+    /**
+     * clear token
+     */
+    clearAccessToken({ commit }) {
+      commit('updateAccessToken', '');
+      commit('updateRefreshToken', '');
     },
   },
 });
