@@ -12,7 +12,9 @@ That protocol allows only authorized users to access web resources. Which means 
 
 > And, of course, you can contribute through the 🔧 [Issues](https://github.com/Gumball12/serverless-with-oauth/issues) page
 
-### Team Members
+_Thanks for reading! And if it helps, you can start it!_ 😂⭐️
+
+### 🐧 Team Members
 * [김성규](https://github.com/timosarang)
 * [고한설](https://github.com/rhgkstjf)
 * [서해준](https://github.com/Gumball12)
@@ -20,11 +22,22 @@ That protocol allows only authorized users to access web resources. Which means 
 * [양철주](https://github.com/ycj1212)
 
 ## Service Flow
-#### OAuth2.0 Flow
-![oauth flow](https://i.imgur.com/Bp8n5XV.png)
+### OAuth2.0 Flow
+<p align="center"><img alt="oauth flow" height="400" src="https://i.imgur.com/Bp8n5XV.png"></p>
 
-#### AWS Flow
-![aws flow](https://i.imgur.com/B09PSmO.png)
+#### Processes
+* Process 1: Access to Protected Resources
+* Process 2: Issue an `Auth Grant`
+* Process 3: Issue an `Access Token`
+* Process 4: Reissue an `Access Token`
+
+#### Vulnerabilities
+* MITM Attack
+* Guessing Attack
+* CSRF
+
+### AWS Flow
+<p align="center"><img alt="aws flow" height="400" src="https://i.imgur.com/B09PSmO.png"></p>
 
 * OAuth modules
   * `Resource Server`
