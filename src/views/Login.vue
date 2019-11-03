@@ -15,11 +15,12 @@
 
         <!--
           id field (mask: id)
-          rules: required
+          rules: required, failToLogin
         -->
         <v-text-field class="mt-9"
           label="아이디" single-line dark
-          v-model="idField" v-mask="mask.id" :rules="[rules.required]" />
+          v-model="idField" v-mask="mask.id" :rules="[rules.required, failToLogin]"
+          @input="isLoginFail = false" />
 
         <!--
           password field (mask: password)
@@ -31,19 +32,23 @@
           :type="passwordShow ? 'text' : 'password'"
           v-model="passwordField" v-mask="mask.password"
           :rules="[rules.required]"
-          @click:append="passwordShow = !passwordShow" />
+          @click:append="passwordShow = !passwordShow"
+          @input="isLoginFail = false" />
 
         <!-- register message -->
         <p class="grey--text text--lighten-5 float-right mb-8">
           아이디가 없으신가요?
-          <span class="pl-2 blue--text text--accent-4"
+          <span class="pl-2 blue--text text--accent-1"
             style="cursor: pointer"
             @click="registerMode = true">회원가입</span>
         </p>
 
         <!-- login button -->
         <v-btn color="primary" tile block x-large
-          @click="doLogin">로그인</v-btn>
+          @click="doLogin" :disabled="isLoading">
+          <template v-if="isLoading"><v-progress-circular indeterminate color="amber" /></template>
+          <template v-else>로그인</template>
+        </v-btn>
       </v-col>
     </v-container>
   </div>
@@ -74,6 +79,8 @@ export default {
 
     // input field env
     passwordShow: false,
+    isLoginFail: false,
+    isLoading: false,
 
     // page mode
     registerMode: false,
@@ -120,22 +127,49 @@ export default {
      * @return {Boolean} validation result
      */
     checkConfirmPasswordEqual: () => (this.passwordField === this.confirmPasswordField) || '입력한 비밀번호와 동일하게 입력해주세요',
+    /**
+     * check user authorization is fail
+     * @return {Boolean} validation result
+     */
+    failToLogin() {
+      return !this.isLoginFail || '사용자 인증에 실패하였습니다';
+    },
   },
   methods: {
     /**
      * login action
+     * 1. Request Auth Grant
+     * 2. Request Tokens
+     * @return {Boolean} validation result
      */
     async doLogin() {
-      // send user data
+      // start loading
+      this.isLoading = true;
+
+      // 1. Request Auth Grant
       const { data } = await post(`${this.$env.host}/filter`, {
         target: 'resource-owner',
         payload: {
-          id: 'darwin',
-          password: 'pass',
+          id: this.idField,
+          password: this.passwordField,
         },
       });
 
-      console.log(data);
+      // end loading
+      this.isLoading = false;
+
+      // check status code
+      if (data.statusCode) {
+        // validation failed
+        this.isLoginFail = true;
+        return false;
+      }
+
+      // get Auth Grant ID
+      const { body: grant } = data;
+      console.log(grant);
+
+      return true;
     },
   },
   created() {
