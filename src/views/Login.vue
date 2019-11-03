@@ -196,7 +196,18 @@ export default {
       // end loading
       this.isLoading = false;
 
-      console.log(respAuthServer);
+      // check status code (wrong pattern => duplicated code)
+      if (respResOwner.statusCode !== 200) {
+        // validation failed
+        this.isLoginFail = true;
+        return false;
+      }
+
+      // set token
+      this.setToken(_.flowRight(
+        ([accessToken, refreshToken]) => ({ accessToken, refreshToken }),
+        _.partial(_.get, _, 'body'),
+      )(respAuthServer));
 
       return true;
     },
