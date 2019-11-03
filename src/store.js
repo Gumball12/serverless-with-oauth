@@ -3,7 +3,13 @@ import Vuex from 'vuex';
 
 import _ from 'lodash';
 
+import createPersistedState from 'vuex-persistedstate';
+import SecureLS from 'secure-ls'; // for encryption
+
+// init
 Vue.use(Vuex);
+
+const ls = new SecureLS({ isCompression: false });
 
 export default new Vuex.Store({
   state: {
@@ -49,9 +55,20 @@ export default new Vuex.Store({
     /**
      * clear token
      */
-    clearAccessToken({ commit }) {
+    clearToken({ commit }) {
       commit('updateAccessToken', '');
       commit('updateRefreshToken', '');
     },
   },
+
+  // persisted state for vuex with Secure-LS (encryption)
+  plugins: [
+    createPersistedState({
+      storage: {
+        getItem: key => ls.get(key),
+        setItem: (key, value) => ls.set(key, value),
+        removeItem: key => ls.remove(key),
+      },
+    }),
+  ],
 });
