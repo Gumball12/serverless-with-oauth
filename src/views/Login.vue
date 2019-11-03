@@ -58,6 +58,7 @@
 import * as VueTheMask from 'vue-the-mask';
 import { repeat, reduce } from 'lodash';
 import { post } from 'axios';
+import { mapGetters } from 'vuex';
 
 /**
  * check a staring using regular expression and length
@@ -134,6 +135,10 @@ export default {
     failToLogin() {
       return !this.isLoginFail || '사용자 인증에 실패하였습니다';
     },
+    // vuex
+    ...mapGetters([
+      'isTokenEmpty',
+    ]),
   },
   methods: {
     /**
@@ -143,6 +148,12 @@ export default {
      * @return {Boolean} validation result
      */
     async doLogin() {
+      // check token is empty
+      if (!this.isTokenEmpty) {
+        // token is not empty => wrong state
+        return false;
+      }
+
       // start loading
       this.isLoading = true;
 
