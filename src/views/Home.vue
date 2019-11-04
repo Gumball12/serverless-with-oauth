@@ -1,14 +1,27 @@
 <template>
   <v-container class="fill-height flex-column justify-center">
-    <!-- logout button -->
-    <v-btn class="logout-btn font-weight-black" color="error" text
-      @click="doLogout">로그아웃</v-btn>
+    <!-- tools -->
+    <div class="tool-panel">
+      <v-col>
+        <v-row class="justify-end">
+          <v-btn class="font-weight-black" color="error" text
+            @click="doLogout">로그아웃</v-btn>
+        </v-row>
+        <v-row class="justify-end">
+          <v-btn class="font-weight-black" text
+            @click="getResource">보호된 자원 가져오기</v-btn>
+        </v-row>
+        <v-row class="justify-end">
+          <v-btn class="font-weight-black" text
+            @click="removeResource">모두 지우기</v-btn>
+        </v-row>
+      </v-col>
+    </div>
 
     <!-- contents -->
-    <v-btn class="mb-5"
-      @click="getProtectedResource">보호된 자원 가져오기</v-btn>
-
-    <v-sheet elevation="1" class="mx-auto" v-text="renderData" />
+    <v-sheet elevation="1" class="pa-3 px-12 mx-auto">
+      <p v-for="data in renderData" class="mb-0 title" :key="data" v-text="data" />
+    </v-sheet>
   </v-container>
 </template>
 
@@ -19,7 +32,7 @@ import { post } from 'axios';
 export default {
   name: 'home',
   data: () => ({
-    renderData: '',
+    renderData: [],
   }),
   computed: {
     ...mapState([
@@ -40,8 +53,9 @@ export default {
     },
     /**
      * get protected resource
+     * @return {Boolean} result
      */
-    async getProtectedResource() {
+    async getResource() {
       const { data: res } = await post(`${this.$env.host}/filter`, {
         target: 'resource-server',
         payload: {
@@ -50,20 +64,45 @@ export default {
         },
       });
 
-      console.log(res);
+      // unauthorized (http 401)
+      if (res.statusCode === 401) {
+        // clear
+        this.clearToken();
+        this.$router.push('login');
+
+        return false; // error
+      }
+
+      // forbidden (http 403, need re-issue token)
+      if (res.statusCode === 403) {
+        //
+
+        return false;
+      }
+
+      // append data
+      this.renderData.push(res.body);
+
+      return true;
     },
     // vuex
     ...mapActions([
       'clearToken',
     ]),
+    /**
+     * remove all resources
+     */
+    removeResource() {
+      this.renderData = [];
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-button.logout-btn {
+div.tool-panel {
   position: absolute;
-  right: 2em;
-  top: 2em;
+  right: 0.5em;
+  top: 0;
 }
 </style>
