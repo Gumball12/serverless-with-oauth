@@ -1,3 +1,3 @@
 export default {
-  host: 'http://127.0.0.1:3000',
+  host: 'https://xkmcwtpvk4.execute-api.ap-northeast-2.amazonaws.com/dev',
 };
