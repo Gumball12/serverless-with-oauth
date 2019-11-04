@@ -40,6 +40,8 @@ export default {
       'accessToken',
       'refreshToken',
       'userId',
+      'isExpiredAccessToken',
+      'isExpiredRefreshToken',
     ]),
   },
   methods: {
@@ -63,7 +65,7 @@ export default {
         payload: {
           accessToken: this.accessToken,
           userId: this.userId,
-          isExpired: true,
+          isExpired: this.isExpiredAccessToken,
         },
       });
 
@@ -98,7 +100,7 @@ export default {
         payload: {
           refreshToken: this.refreshToken,
           userId: this.userId,
-          isExpired: false,
+          isExpired: this.isExpiredRefreshToken,
         },
       });
 
@@ -136,7 +138,7 @@ export default {
 
 <style lang="scss" scoped>
 div.tool-panel {
-  position: absolute;
+  position: fixed;
   right: 0.5em;
   top: 0;
 }
