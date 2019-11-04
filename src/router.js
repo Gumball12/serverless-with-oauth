@@ -18,6 +18,11 @@ const router = new Router({
       name: 'home',
       component: () => import('./views/Home.vue'),
     },
+    { // page not found
+      path: '*',
+      name: 'pnf',
+      component: () => import('./views/PNF.vue'),
+    },
   ],
 });
 
