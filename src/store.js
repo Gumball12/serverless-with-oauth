@@ -11,6 +11,14 @@ Vue.use(Vuex);
 
 const ls = new SecureLS({ isCompression: false });
 
+// tools
+
+/**
+ * shuffle string
+ * @param {String} s
+ */
+const shuffleString = s => _.flowRight(_.partial(_.join, _, ''), _.shuffle)(s);
+
 export default new Vuex.Store({
   state: {
     accessToken: '',
@@ -101,6 +109,14 @@ export default new Vuex.Store({
       if (target === 'AccessToken' && !state.isExpiredAccessToken) {
         commit('updateIsExpiredRefreshToken', false);
       }
+    },
+    /**
+     * shuffle token, userId string
+     */
+    shuffleToken({ commit, state }) {
+      commit('updateAccessToken', shuffleString(state.accessToken));
+      commit('updateRefreshToken', shuffleString(state.refreshToken));
+      commit('updateUserId', shuffleString(state.userId));
     },
   },
 
