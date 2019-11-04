@@ -14,12 +14,6 @@ export default {
 </script>
 
 <style lang="scss">
-/* global */
-
-html {
-  overflow-y: hidden !important;
-}
-
 // fonts
 @font-face { // 배민 주아체
   font-family: bm-jua;

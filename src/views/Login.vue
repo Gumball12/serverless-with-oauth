@@ -18,7 +18,7 @@
           rules: required, failToLogin
         -->
         <v-text-field class="mt-9"
-          label="아이디" single-line dark
+          label="아이디" single-line dark :disabled="isLoading"
           v-model="idField" v-mask="mask.id" :rules="[rules.required, failToLogin]"
           @input="isLoginFail = false" />
 
@@ -27,7 +27,7 @@
           rules: required
         -->
         <v-text-field class="mt-0 pt-0"
-          label="비밀번호" single-line dark
+          label="비밀번호" single-line dark :disabled="isLoading"
           :append-icon="showPasswordFieldIcon"
           :type="passwordShow ? 'text' : 'password'"
           v-model="passwordField" v-mask="mask.password"
@@ -44,8 +44,8 @@
         </p>
 
         <!-- login button -->
-        <v-btn color="primary" tile block x-large
-          @click="doLogin" :disabled="isLoading">
+        <v-btn color="primary" tile block x-large :disabled="isLoading"
+          @click="doLogin">
           <template v-if="isLoading"><v-progress-circular indeterminate color="amber" /></template>
           <template v-else>로그인</template>
         </v-btn>
@@ -58,7 +58,7 @@
 import * as VueTheMask from 'vue-the-mask';
 import _ from 'lodash';
 import { post } from 'axios';
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapActions, mapMutations } from 'vuex';
 
 /**
  * check a staring using regular expression and length
@@ -209,12 +209,21 @@ export default {
         _.partial(_.get, _, 'body'),
       )(respAuthServer));
 
+      // set user id
+      this.updateUserId(this.idField);
+
+      // move to home page
+      this.$router.push('/');
+
       return true;
     },
     // vuex
     ...mapActions([
       'setToken',
       'clearToken',
+    ]),
+    ...mapMutations([
+      'updateUserId',
     ]),
   },
   created() {

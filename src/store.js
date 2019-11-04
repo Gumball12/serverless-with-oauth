@@ -13,9 +13,9 @@ const ls = new SecureLS({ isCompression: false });
 
 export default new Vuex.Store({
   state: {
-    // tokens
     accessToken: '',
     refreshToken: '',
+    userId: '',
   },
   getters: {
     /**
@@ -40,6 +40,12 @@ export default new Vuex.Store({
     updateRefreshToken(state, refreshToken) {
       state.refreshToken = refreshToken;
     },
+    /**
+     * update user id
+     */
+    updateUserId(state, userId) {
+      state.userId = userId;
+    },
   },
   actions: {
     /**
@@ -58,6 +64,7 @@ export default new Vuex.Store({
     clearToken({ commit }) {
       commit('updateAccessToken', '');
       commit('updateRefreshToken', '');
+      commit('updateUserId', '');
     },
   },
 
