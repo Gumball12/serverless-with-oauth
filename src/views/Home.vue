@@ -28,6 +28,7 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 import { post } from 'axios';
+import _ from 'lodash';
 
 export default {
   name: 'home',
@@ -37,7 +38,10 @@ export default {
   computed: {
     ...mapState([
       'accessToken',
+      'refreshToken',
       'userId',
+      'isExpiredAccessToken',
+      'isExpiredRefreshToken',
     ]),
   },
   methods: {
@@ -53,7 +57,7 @@ export default {
     },
     /**
      * get protected resource
-     * @return {Boolean} result
+     * @return {Boolean} validation result
      */
     async getResource() {
       const { data: res } = await post(`${this.$env.host}/filter`, {
@@ -61,6 +65,7 @@ export default {
         payload: {
           accessToken: this.accessToken,
           userId: this.userId,
+          isExpired: this.isExpiredAccessToken,
         },
       });
 
@@ -75,7 +80,7 @@ export default {
 
       // forbidden (http 403, need re-issue token)
       if (res.statusCode === 403) {
-        //
+        this.getNewToken();
 
         return false;
       }
@@ -85,9 +90,41 @@ export default {
 
       return true;
     },
+    /**
+     * get new token
+     * @return {Boolean} validation result
+     */
+    async getNewToken() {
+      const { data: res } = await post(`${this.$env.host}/filter`, {
+        target: 'authorization-server',
+        payload: {
+          refreshToken: this.refreshToken,
+          userId: this.userId,
+          isExpired: this.isExpiredRefreshToken,
+        },
+      });
+
+      // unauthorized (http 401 | http 403)
+      if (res.statusCode !== 200) {
+        // clear token
+        this.clearToken();
+        this.$router.push('login');
+
+        return false;
+      }
+
+      // set new token
+      this.setToken(_.flowRight(
+        ([accessToken, refreshToken]) => ({ accessToken, refreshToken }),
+        _.partial(_.get, _, 'body'),
+      )(res));
+
+      return true;
+    },
     // vuex
     ...mapActions([
       'clearToken',
+      'setToken',
     ]),
     /**
      * remove all resources
@@ -101,7 +138,7 @@ export default {
 
 <style lang="scss" scoped>
 div.tool-panel {
-  position: absolute;
+  position: fixed;
   right: 0.5em;
   top: 0;
 }
