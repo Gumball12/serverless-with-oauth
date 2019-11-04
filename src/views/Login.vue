@@ -15,11 +15,12 @@
 
         <!--
           id field (mask: id)
-          rules: required
+          rules: required, failToLogin
         -->
         <v-text-field class="mt-9"
           label="아이디" single-line dark
-          v-model="idField" v-mask="mask.id" :rules="[rules.required]" />
+          v-model="idField" v-mask="mask.id" :rules="[rules.required, failToLogin]"
+          @input="isLoginFail = false" />
 
         <!--
           password field (mask: password)
@@ -31,19 +32,23 @@
           :type="passwordShow ? 'text' : 'password'"
           v-model="passwordField" v-mask="mask.password"
           :rules="[rules.required]"
-          @click:append="passwordShow = !passwordShow" />
+          @click:append="passwordShow = !passwordShow"
+          @input="isLoginFail = false" />
 
         <!-- register message -->
         <p class="grey--text text--lighten-5 float-right mb-8">
           아이디가 없으신가요?
-          <span class="pl-2 blue--text text--accent-4"
+          <span class="pl-2 blue--text text--accent-1"
             style="cursor: pointer"
             @click="registerMode = true">회원가입</span>
         </p>
 
         <!-- login button -->
         <v-btn color="primary" tile block x-large
-          @click="doLogin">로그인</v-btn>
+          @click="doLogin" :disabled="isLoading">
+          <template v-if="isLoading"><v-progress-circular indeterminate color="amber" /></template>
+          <template v-else>로그인</template>
+        </v-btn>
       </v-col>
     </v-container>
   </div>
@@ -51,8 +56,9 @@
 
 <script>
 import * as VueTheMask from 'vue-the-mask';
-import { repeat, reduce } from 'lodash';
+import _ from 'lodash';
 import { post } from 'axios';
+import { mapGetters, mapActions } from 'vuex';
 
 /**
  * check a staring using regular expression and length
@@ -62,7 +68,7 @@ import { post } from 'axios';
  * @return {Boolean} validation result
  */
 // eslint-disable-next-line max-len
-const checkRegexWithCount = (str, regex, len) => reduce(str, (r, c) => (regex.test(c) ? r + 1 : r), 0) >= len;
+const checkRegexWithCount = (str, regex, len) => _.reduce(str, (r, c) => (regex.test(c) ? r + 1 : r), 0) >= len;
 
 export default {
   name: 'login',
@@ -74,14 +80,16 @@ export default {
 
     // input field env
     passwordShow: false,
+    isLoginFail: false, // for messaging
+    isLoading: false, // for loading progress circle
 
     // page mode
     registerMode: false,
 
     // input field masks
     mask: {
-      id: repeat('X', 32), // X: number + alphabet
-      password: repeat('P', 32), // P: custom rule
+      id: _.repeat('X', 32), // X: number + alphabet
+      password: _.repeat('P', 32), // P: custom rule
     },
 
     // input field rules
@@ -120,23 +128,94 @@ export default {
      * @return {Boolean} validation result
      */
     checkConfirmPasswordEqual: () => (this.passwordField === this.confirmPasswordField) || '입력한 비밀번호와 동일하게 입력해주세요',
+    /**
+     * check user authorization is fail
+     * @return {Boolean} validation result
+     */
+    failToLogin() {
+      return !this.isLoginFail || '사용자 인증에 실패하였습니다';
+    },
+    // vuex
+    ...mapGetters([
+      'isTokenEmpty',
+    ]),
   },
   methods: {
     /**
      * login action
+     * 1. Request Auth Grant
+     * 2. Request Tokens
+     * @return {Boolean} validation result
      */
     async doLogin() {
-      // send user data
-      const { data } = await post(`${this.$env.host}/filter`, {
+      // check token is empty
+      if (!this.isTokenEmpty) { // token is not empty => wrong state
+        // clear all tokens
+        this.clearToken();
+
+        // validation failed
+        this.isLoginFail = true;
+
+        return false;
+      }
+
+      // start loading
+      this.isLoading = true;
+
+      // 1. Request Auth Grant
+      const { data: respResOwner } = await post(`${this.$env.host}/filter`, {
         target: 'resource-owner',
         payload: {
-          id: 'darwin',
-          password: 'pass',
+          userId: this.idField,
+          password: this.passwordField,
         },
       });
 
-      console.log(data);
+      // check status code
+      if (respResOwner.statusCode !== 200) {
+        // validation failed
+        this.isLoginFail = true;
+
+        // stop loading
+        this.isLoading = false;
+        return false;
+      }
+
+      // get Auth Grant ID
+      const { body: grant } = respResOwner;
+
+      // 2. Request Tokens
+      const { data: respAuthServer } = await post(`${this.$env.host}/filter`, {
+        target: 'authorization-server',
+        payload: {
+          grant,
+          userId: this.idField,
+        },
+      });
+
+      // end loading
+      this.isLoading = false;
+
+      // check status code (wrong pattern => duplicated code)
+      if (respResOwner.statusCode !== 200) {
+        // validation failed
+        this.isLoginFail = true;
+        return false;
+      }
+
+      // set token
+      this.setToken(_.flowRight(
+        ([accessToken, refreshToken]) => ({ accessToken, refreshToken }),
+        _.partial(_.get, _, 'body'),
+      )(respAuthServer));
+
+      return true;
     },
+    // vuex
+    ...mapActions([
+      'setToken',
+      'clearToken',
+    ]),
   },
   created() {
     // append custom token rule 'P'
