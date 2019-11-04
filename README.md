@@ -1,7 +1,7 @@
 # serverless-with-oauth
 [![JavaScript Style Guide: Good Parts](https://img.shields.io/badge/code%20style-goodparts-brightgreen.svg?style=flat)](https://github.com/dwyl/goodparts "JavaScript The Good Parts") [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues) [![Known Vulnerabilities](https://snyk.io//test/github/Gumball12/serverless-with-oauth/badge.svg?targetFile=package.json)](https://snyk.io//test/github/Gumball12/serverless-with-oauth?targetFile=package.json)
 
-<p align="center"><img alt="thumbnail" style="max-height: 400px" src="https://i.imgur.com/cFciRLc.png"></p>
+<p align="center"><img alt="thumbnail" height="400" src="https://i.imgur.com/cFciRLc.png"></p>
 
 ### 🔒OAuth2.0 protocol implemented via ⚡️AWS Serverless architecture
 We implemented the _[OAuth2.0 Standard Protocol (RFC 6749)](https://tools.ietf.org/html/rfc6749)_ via AWS Serverless architecture.
