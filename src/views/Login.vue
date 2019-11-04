@@ -209,6 +209,9 @@ export default {
         _.partial(_.get, _, 'body'),
       )(respAuthServer));
 
+      // move to home page
+      this.$router.push('/');
+
       return true;
     },
     // vuex
