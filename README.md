@@ -31,7 +31,7 @@ _Thanks for reading! And if it helps, you can start it!_ ⭐️
 * Process 3: Issue an `Access Token`
 * Process 4: Reissue an `Access Token`
 
-#### Vulnerabilities
+#### Vulnerabilities (_solved_)
 * MITM Attack
 * Guessing Attack
 * CSRF
@@ -54,7 +54,7 @@ Using Python, Javascript
 Using Javascript
 
 * Vue; _vuetify, vue-router, vuex, vue-the-mask_
-* Dependencies; _js-cookie with vuex-persistedstate, axios, uuid, lodash_
+* Dependencies; _secure-ls with vuex-persistedstate, axios, lodash_
 * Dev-Dependencies; _eslint, sass_
 
 ### Reference
