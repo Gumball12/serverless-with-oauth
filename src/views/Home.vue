@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapMutations } from 'vuex';
 import { post } from 'axios';
 import _ from 'lodash';
 
@@ -54,6 +54,9 @@ export default {
 
       // go to the login page
       this.$router.push('login');
+
+      // messaging
+      this.messaging('토큰 해제');
     },
     /**
      * get protected resource
@@ -74,6 +77,8 @@ export default {
         // clear
         this.clearToken();
         this.$router.push('login');
+
+        this.messaging('잘못된 토큰');
 
         return false; // error
       }
@@ -110,6 +115,8 @@ export default {
         this.clearToken();
         this.$router.push('login');
 
+        this.messaging('모든 토큰 만료됨');
+
         return false;
       }
 
@@ -119,19 +126,24 @@ export default {
         _.partial(_.get, _, 'body'),
       )(res));
 
+      this.messaging('토큰이 만료되어 새로운 토큰을 가져옴');
+
       return true;
     },
-    // vuex
-    ...mapActions([
-      'clearToken',
-      'setToken',
-    ]),
     /**
      * remove all resources
      */
     removeResource() {
       this.renderData = [];
     },
+    // vuex
+    ...mapActions([
+      'clearToken',
+      'setToken',
+    ]),
+    ...mapMutations([
+      'messaging',
+    ]),
   },
 };
 </script>

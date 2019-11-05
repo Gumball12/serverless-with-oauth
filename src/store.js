@@ -28,6 +28,10 @@ export default new Vuex.Store({
     // testing tools
     isExpiredAccessToken: false,
     isExpiredRefreshToken: false,
+
+    // messaging
+    messageOpen: false,
+    message: '',
   },
   getters: {
     /**
@@ -72,6 +76,21 @@ export default new Vuex.Store({
      */
     updateIsExpiredRefreshToken(state, b) {
       state.isExpiredRefreshToken = b;
+    },
+    /**
+     * open a new message
+     * @param {String} message
+     */
+    messaging(state, message) {
+      state.message = message;
+      state.messageOpen = true;
+    },
+    /**
+     * close message
+     */
+    closeMessage(state) {
+      state.message = '';
+      state.messageOpen = false;
     },
   },
   actions: {
@@ -130,8 +149,8 @@ export default new Vuex.Store({
       },
       // add ignore keys
       reducer: (persistedState) => {
-        const blackList = ['isExpiredAccessToken', 'isExpiredRefreshToken'];
-        return _.omit(persistedState, blackList);
+        const whiteList = ['accessToken', 'refreshToken', 'userId'];
+        return _.pick(persistedState, whiteList);
       },
     }),
   ],

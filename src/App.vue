@@ -7,10 +7,10 @@
       <!-- testing tool panel -->
       <div class="tool-panel text-right">
         <!-- shuffle button -->
-        <v-tooltip top>
+        <v-tooltip left>
           <template v-slot:activator="{ on }">
             <v-btn class="mb-2" text icon color="error"
-              v-on="on" @click="shuffleToken"><v-icon>mdi-cached</v-icon></v-btn>
+              v-on="on" @click="shuffle"><v-icon>mdi-cached</v-icon></v-btn>
           </template>
           <span><i>주의: 문자열 섞음</i></span>
         </v-tooltip>
@@ -29,11 +29,15 @@
     </v-content>
 
     <!-- message -->
+    <v-snackbar :value="messageOpen" :timeout="2000">
+      {{ message }}
+      <v-btn color="pink" text @click="closeMessage">닫기</v-btn>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapMutations } from 'vuex';
 
 export default {
   name: 'app',
@@ -45,6 +49,8 @@ export default {
       'userId',
       'isExpiredAccessToken',
       'isExpiredRefreshToken',
+      'messageOpen',
+      'message',
     ]),
   },
   methods: {
@@ -60,17 +66,28 @@ export default {
     switchIsExpiredRefreshToken() {
       this.switchIsExpired('RefreshToken');
     },
+    /**
+     * shuffle token and messaging
+     */
+    shuffle() {
+      this.shuffleToken();
+      this.messaging('토큰 문자열 섞음');
+    },
     // vuex
     ...mapActions([
       'switchIsExpired',
       'shuffleToken',
+    ]),
+    ...mapMutations([
+      'closeMessage',
+      'messaging',
     ]),
   },
   filters: {
     /**
      * limit text filter
      */
-    limitTexts: v => (v.length > 20 ? `${v.slice(0, 5)}...${v.slice(-5)}` : v),
+    limitTexts: v => (v && v.length > 20 ? `${v.slice(0, 5)}...${v.slice(-5)}` : v),
   },
 };
 </script>
@@ -98,7 +115,6 @@ div.tool-panel {
 
   & > div.v-sheet > p {
     margin-bottom: 0;
-    cursor: pointer;
   }
 }
 </style>
