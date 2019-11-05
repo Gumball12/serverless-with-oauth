@@ -4,16 +4,20 @@
     <div class="tool-panel">
       <v-col>
         <v-row class="justify-end">
-          <v-btn class="font-weight-black" color="error" text
+          <v-btn class="font-weight-black" color="error" text tile
             @click="doLogout">로그아웃</v-btn>
         </v-row>
         <v-row class="justify-end">
-          <v-btn class="font-weight-black" text
+          <v-btn class="font-weight-black" text tile
             @click="getResource">보호된 자원 가져오기</v-btn>
         </v-row>
         <v-row class="justify-end">
-          <v-btn class="font-weight-black" text
+          <v-btn class="font-weight-black" text tile
             @click="removeResource">모두 지우기</v-btn>
+        </v-row>
+        <v-row class="justify-end">
+          <v-btn class="font-weight-black grey--text" text tile
+            @click="tutorial">설명</v-btn>
         </v-row>
       </v-col>
     </div>
@@ -22,6 +26,25 @@
     <v-sheet elevation="1" class="pa-3 px-12 mx-auto">
       <p v-for="data in renderData" class="mb-0 title" :key="data" v-text="data" />
     </v-sheet>
+
+    <!-- overlay -->
+    <v-overlay class="tutorial-panel" opacity="0.86"
+      :value="showOverlay" :z-index="0">
+      <ol>
+        <li>Access Token을 통해 보호된 자원을 가져올 수 있습니다.</li>
+        <li>Access Token이 만료된 경우(<i>Access Token Expired</i>), Refresh Token을 통해 새로운 토큰을 가져옵니다.</li>
+        <li>
+          다음의 경우 사용자는 강제로 로그아웃됩니다.
+          <ul>
+            <li>모든 토큰(Access Token, Refresh Token)이 만료된 경우</li>
+            <li>잘못된 토큰 값 또는 사용자 ID를 가지고 있는 경우</li>
+          </ul>
+        </li>
+      </ol>
+      <p class="caption font-italic mt-2 float-left">(화면이 작을 경우 UI가 겹쳐보일 수 있습니다)</p>
+      <v-btn class="float-right indigo" text tile
+        @click="showOverlay = false" >닫기</v-btn>
+    </v-overlay>
   </v-container>
 </template>
 
@@ -34,6 +57,9 @@ export default {
   name: 'home',
   data: () => ({
     renderData: [],
+
+    // tutorial
+    showOverlay: false,
   }),
   computed: {
     ...mapState([
@@ -136,6 +162,12 @@ export default {
     removeResource() {
       this.renderData = [];
     },
+    /**
+     * tutorial
+     */
+    tutorial() {
+      this.showOverlay = true;
+    },
     // vuex
     ...mapActions([
       'clearToken',
@@ -153,5 +185,9 @@ div.tool-panel {
   position: fixed;
   right: 0.5em;
   top: 0;
+}
+
+div.tutorial-panel {
+  line-height: 2;
 }
 </style>

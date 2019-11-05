@@ -12,7 +12,7 @@
             <v-btn class="mb-2" text icon color="error"
               v-on="on" @click="shuffle"><v-icon>mdi-cached</v-icon></v-btn>
           </template>
-          <span><i>주의: 문자열 섞음</i></span>
+          <span><i>주의: 토큰 및 사용자 ID 섞음</i></span>
         </v-tooltip>
 
         <!-- tools -->
@@ -71,7 +71,7 @@ export default {
      */
     shuffle() {
       this.shuffleToken();
-      this.messaging('토큰 문자열 섞음');
+      this.messaging('토큰 문자열 및 사용자 ID 섞음');
     },
     // vuex
     ...mapActions([
