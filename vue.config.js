@@ -1,3 +1,3 @@
 module.exports = {
-  // baseUrl: '/serverless-with-oauth/',
+  baseUrl: '/serverless-with-oauth/',
 };
