@@ -29,7 +29,7 @@
     </v-content>
 
     <!-- message -->
-    <v-snackbar :value="messageOpen" :timeout="2000">
+    <v-snackbar :value="messageOpen" :timeout="0">
       {{ message }}
       <v-btn color="pink" text @click="closeMessage">닫기</v-btn>
     </v-snackbar>
