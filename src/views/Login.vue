@@ -275,6 +275,9 @@ export default {
       // set user id
       this.updateUserId(this.idField);
 
+      // messaging
+      this.messaging('토큰 설정됨');
+
       // move to home page
       this.$router.push('/');
 
@@ -322,6 +325,7 @@ export default {
     ]),
     ...mapMutations([
       'updateUserId',
+      'messaging',
     ]),
   },
   watch: {
