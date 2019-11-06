@@ -29,7 +29,7 @@
     </v-content>
 
     <!-- message -->
-    <v-snackbar :value="messageOpen" :timeout="2000">
+    <v-snackbar :value="messageOpen" :timeout="0">
       {{ message }}
       <v-btn color="pink" text @click="closeMessage">닫기</v-btn>
     </v-snackbar>
@@ -98,12 +98,7 @@ export default {
 // fonts
 @font-face { // 배민 주아체
   font-family: bm-jua;
-  src: url('./assets/fonts/BMJUA_ttf.ttf');
-}
-
-@font-face { // 배민 한나체
-  font-family: bm-hanna;
-  src: url('./assets/fonts/BMHANNA_11yrs_ttf.ttf');
+  src: url('./assets/fonts/BMJUA_optimized.ttf');
 }
 </style>
 
