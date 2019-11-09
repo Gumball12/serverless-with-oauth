@@ -24,8 +24,12 @@
 
     <!-- contents -->
     <v-sheet elevation="1" class="pa-3 px-12 mx-auto">
-      <p v-for="(data, ind) in renderData" class="mb-0 title" :key="`${data}-${ind}`"
-        v-text="data" />
+      <template v-for="(data, ind) in renderData">
+        <!-- render data -->
+        <p class="mb-0 title"
+          v-if="!isImageData(data)" :key="`${data}-${ind}`" v-text="data" />
+        <p class="mb-0" v-else :key="`${data}-${ind}`"><img :src="data" /></p>
+      </template>
     </v-sheet>
 
     <!-- overlay -->
@@ -43,8 +47,10 @@
         </li>
       </ol>
       <p class="caption font-italic mt-2 float-left">(화면이 작을 경우 UI가 겹쳐보일 수 있습니다)</p>
-      <v-btn class="float-right indigo" text tile
+      <v-btn class="float-right indigo" tile
         @click="showOverlay = false" >닫기</v-btn>
+      <v-btn class="float-right font-weight-black" color="green" text tile
+        @click="goGitHub">깃허브</v-btn>
     </v-overlay>
   </v-container>
 </template>
@@ -164,6 +170,19 @@ export default {
      */
     tutorial() {
       this.showOverlay = true;
+    },
+    /**
+     * check data is image
+     * @return {Boolean} check result
+     */
+    isImageData(data) {
+      return data.startsWith('data:image');
+    },
+    /**
+     * go to the github page
+     */
+    goGitHub() {
+      window.open('https://github.com/Gumball12/serverless-with-oauth', '_blank');
     },
     // vuex
     ...mapActions([
