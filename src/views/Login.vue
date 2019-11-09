@@ -260,17 +260,14 @@ export default {
       this.isLoading = false;
 
       // check status code (wrong pattern => duplicated code)
-      if (respResOwner.statusCode !== 200) {
+      if (respAuthServer.statusCode !== 200) {
         // validation failed
         this.isLoginFail = true;
         return false;
       }
 
       // set token
-      this.setToken(_.flowRight(
-        ([accessToken, refreshToken]) => ({ accessToken, refreshToken }),
-        _.partial(_.get, _, 'body'),
-      )(respAuthServer));
+      this.setToken(respAuthServer.body);
 
       // set user id
       this.updateUserId(this.idField);

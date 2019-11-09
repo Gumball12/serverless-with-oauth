@@ -71,7 +71,7 @@ export default {
      */
     shuffle() {
       this.shuffleToken();
-      this.messaging('토큰 문자열 및 사용자 ID 섞음');
+      this.messaging('토큰 문자열 섞음');
     },
     // vuex
     ...mapActions([
