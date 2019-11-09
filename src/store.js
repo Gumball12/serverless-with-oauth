@@ -2,9 +2,12 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import _ from 'lodash';
+import { post } from 'axios';
 
 import createPersistedState from 'vuex-persistedstate';
 import SecureLS from 'secure-ls'; // for encryption
+
+import env from './env';
 
 // init
 Vue.use(Vuex);
@@ -19,7 +22,7 @@ const ls = new SecureLS({ isCompression: false });
  */
 const shuffleString = s => _.flowRight(_.partial(_.join, _, ''), _.shuffle)(s);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     accessToken: '',
     refreshToken: '',
@@ -108,6 +111,15 @@ export default new Vuex.Store({
      * clear token
      */
     clearToken({ commit }) {
+      // init token (server)
+      post(`${env.host}/filter`, {
+        target: 'initialization',
+        payload: {
+          userId: store.state.userId,
+        },
+      });
+
+      // init token (client)
       commit('updateAccessToken', '');
       commit('updateRefreshToken', '');
       commit('updateUserId', '');
@@ -130,12 +142,11 @@ export default new Vuex.Store({
       }
     },
     /**
-     * shuffle token, userId string
+     * shuffle token (without userId)
      */
     shuffleToken({ commit, state }) {
       commit('updateAccessToken', shuffleString(state.accessToken));
       commit('updateRefreshToken', shuffleString(state.refreshToken));
-      commit('updateUserId', shuffleString(state.userId));
     },
   },
 
@@ -155,3 +166,5 @@ export default new Vuex.Store({
     }),
   ],
 });
+
+export default store;

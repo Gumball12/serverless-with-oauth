@@ -24,7 +24,8 @@
 
     <!-- contents -->
     <v-sheet elevation="1" class="pa-3 px-12 mx-auto">
-      <p v-for="data in renderData" class="mb-0 title" :key="data" v-text="data" />
+      <p v-for="(data, ind) in renderData" class="mb-0 title" :key="`${data}-${ind}`"
+        v-text="data" />
     </v-sheet>
 
     <!-- overlay -->
@@ -51,7 +52,6 @@
 <script>
 import { mapActions, mapState, mapMutations } from 'vuex';
 import { post } from 'axios';
-import _ from 'lodash';
 
 export default {
   name: 'home',
@@ -147,10 +147,7 @@ export default {
       }
 
       // set new token
-      this.setToken(_.flowRight(
-        ([accessToken, refreshToken]) => ({ accessToken, refreshToken }),
-        _.partial(_.get, _, 'body'),
-      )(res));
+      this.setToken(res.body);
 
       this.messaging('토큰이 만료되어 새로운 토큰을 가져옴');
 
